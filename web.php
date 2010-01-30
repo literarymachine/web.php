@@ -19,6 +19,9 @@ class web_app {
                 return true;
             }
         }
-    }
 
+        throw new web_exception('Undefined route');
+    }
 }
+
+class web_exception extends Exception {}
