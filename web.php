@@ -9,7 +9,7 @@ class web_app {
 
         foreach ($routes as $route => $controller_class) {
             $escaped_route = str_replace('/', '\/', $route);
-            $pattern = preg_replace('/:([^$\\\\]*)/', '([^$\/]*)', $escaped_route);
+            $pattern = preg_replace('/:([^$\\\\]*)/', '([^$\/]+)', $escaped_route);
             $params = array();
             $match = preg_match("/^$pattern$/", $url, $params);
             if (1 === $match) {
