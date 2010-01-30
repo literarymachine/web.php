@@ -3,7 +3,6 @@
 class web_app {
 
     public function dispatch($routes) {
-        $request = $_SERVER;
         $url = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
         $method = $_SERVER['REQUEST_METHOD'];
 
@@ -14,13 +13,17 @@ class web_app {
             $match = preg_match("/^$pattern$/", $url, $params);
             if (1 === $match) {
                 array_shift($params);
-                $action = new ReflectionMethod($controller_class, $method);
-                $action->invokeArgs(new $controller_class, $params);
-                return true;
+                try {
+                    $action = new ReflectionMethod($controller_class, $method);
+                    $action->invokeArgs(new $controller_class, $params);
+                    return;
+                } catch (ReflectionException $e) {
+                    throw new web_exception("Method $method not implemented.");
+                }
             }
         }
 
-        throw new web_exception('Undefined route');
+        throw new web_exception("Unmatched route: $url");
     }
 }
 
