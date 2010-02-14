@@ -3,7 +3,7 @@
 class web_app {
 
     public function dispatch($routes) {
-        $url = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
+        $url = $_SERVER['PATH_INFO'];
         $method = $_SERVER['REQUEST_METHOD'];
 
         foreach ($routes as $route => $controller_classname) {
