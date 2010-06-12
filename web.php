@@ -1,6 +1,8 @@
 <?php
 
-class web_app {
+require_once('http.php');
+
+class WebApp {
 
     public function dispatch($routes) {
         $url = $_SERVER['PATH_INFO'];
@@ -15,16 +17,20 @@ class web_app {
                 array_shift($params);
                 $controller_class = new ReflectionClass($controller_classname);
                 if (false === $controller_class->hasMethod($method)) {
-                    throw new web_exception("Method $method not implemented.");
+                    $http_status = new HTTP501;
+                    return $http_status->respond();
                 }
                 $action = $controller_class->getMethod($method);
-                $action->invokeArgs($controller_class->newInstance(), $params);
-                return;
+                try {
+                    return $action->invokeArgs($controller_class->newInstance(), $params);
+                } catch (HTTPStatus $http_status) {
+                    return $http_status->respond();
+                }
             }
         }
 
-        throw new web_exception("Unmatched route: $url");
+        $http_status = new HTTP404;
+        return $http_status->respond();
     }
 }
 
-class web_exception extends Exception {}
