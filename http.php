@@ -5,7 +5,7 @@ abstract class HTTPStatus extends Exception {
         return "HTTP/1.1 $this->code $this->message";
     }
     public function respond() {
-        header($this);
+        header($this, true, $this->code);
     }
 }
 
@@ -14,11 +14,9 @@ abstract class HTTPRedirection extends HTTPStatus {
     public function __construct($location) {
         $this->location = $location;
     }
-    public function __toString() {
-        return "Location: $this->location";
-    }
     public function respond() {
-        header($this, true, $this->code);
+        parent::respond();
+        header("Location: $this->location", false);
     }
 }
 
