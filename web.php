@@ -1,7 +1,5 @@
 <?php
 
-require_once('http.php');
-
 /**
  * A Web App
  */
@@ -18,13 +16,13 @@ class WebApp {
      * Set up the app.
      */
     public function __construct() {
-        $this->_request = new WebRequest();
+        $this->_request = new WebRequest($_SERVER);
         $this->_response = new WebResponse();
     }
 
     public function dispatch($routes) {
-        $url = $_SERVER['PATH_INFO'];
-        $method = $_SERVER['REQUEST_METHOD'];
+        $url = $this->_request->getUrl();
+        $method = $this->_request->getMethod();
         foreach ($routes as $route => $controller_classname) {
             $escaped_route = str_replace('/', '\/', $route);
             $pattern = preg_replace('/:([^$\\\\]*)/', '([^$\/]+)', $escaped_route);
@@ -81,21 +79,41 @@ class WebRequest {
     protected $_base_url = "";
 
     /**
+     * The requested url.
+     *
+     * @var mixed  Defaults to "".
+     */
+    protected $_url = "";
+
+    /**
+     * The request method.
+     *
+     * @var mixed  Defaults to 0.
+     */
+    protected $_method = 0;
+
+    /**
      * Set up language and content negotation.
      */
-    public function __construct() {
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    public function __construct($env) {
+        if (isset($env['HTTP_ACCEPT_LANGUAGE'])) {
             $this->_http_accept_lang =
-                $this->_parseAccept($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+                $this->_parseAccept($env['HTTP_ACCEPT_LANGUAGE']);
         }
-        if (isset($_SERVER['HTTP_ACCEPT'])) {
+        if (isset($env['HTTP_ACCEPT'])) {
             $this->_http_accept =
-                $this->_parseAccept($_SERVER['HTTP_ACCEPT']);
+                $this->_parseAccept($env['HTTP_ACCEPT']);
         }
-        if (isset($_SERVER['SCRIPT_NAME'])) {
-            $dir = dirname($_SERVER['SCRIPT_NAME']);
+        if (isset($env['SCRIPT_NAME'])) {
+            $dir = dirname($env['SCRIPT_NAME']);
             $base_url = ($dir == '/') ? "" : $dir;
             $this->_base_url = $base_url;
+        }
+        if (isset($env['PATH_INFO'])) {
+            $this->_url = $env['PATH_INFO'];
+        }
+        if (isset($env['REQUEST_METHOD'])) {
+            $this->_method = $env['REQUEST_METHOD'];
         }
     }
 
@@ -146,6 +164,25 @@ class WebRequest {
     public function getBaseUrl() {
         return $this->_base_url;
     }
+
+    /**
+     * Returns the url of the request.
+     *
+     * @return string
+     */
+    public function getUrl() {
+        return $this->_url;
+    }
+
+    /**
+     * Returns the request method.
+     *
+     * @return int
+     */
+    public function getMethod() {
+        return $this->_method;
+    }
+
 }
 
 /**
@@ -183,7 +220,7 @@ class WebResponse {
 
     /**
      * Set the response header.
-     * 
+     *
      * @param  int    $code   HTTP status code
      * @param  array  $headers Header string
      * @return void
@@ -197,7 +234,7 @@ class WebResponse {
     }
 
     /**
-     * Append to response body
+     * Write to response body
      *
      * @param  string  $body
      * @return void
@@ -207,18 +244,18 @@ class WebResponse {
     }
 
     /**
-     * TODO: short description.
-     * 
-     * @return TODO
+     * Get the response body
+     *
+     * @return string
      */
     public function getBody() {
         return $this->_body;
     }
 
     /**
-     * TODO: short description.
-     * 
-     * @return TODO
+     * Trigger the response
+     *
+     * @return void
      */
     public function terminate() {
         $this->_terminated = true;
@@ -226,7 +263,6 @@ class WebResponse {
         foreach ($this->_headers as $header => $value) {
             header("$header: $value");
         }
-        header($header, true, $this->_code);
         echo $this->_body;
     }
 }
