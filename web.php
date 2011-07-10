@@ -41,16 +41,10 @@ class WebApp {
                 return;
             }
         }
-    }
-
-    /**
-     * TODO: short description.
-     * 
-     * @return TODO
-     */
-    public function respond() {
+        $this->_response->writeHead(404, array("Content-Type" => "application/xhtml+xml"));
         $this->_response->terminate();
     }
+
 }
 
 /**
