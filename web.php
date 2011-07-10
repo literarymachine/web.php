@@ -37,7 +37,8 @@ class WebApp {
                 }
                 $action = $controller_class->getMethod($method);
                 $action->invokeArgs(
-                        $controller_class->newInstance($this->_request, $this->_response), $params);
+                        $controller_class->newInstance($this->_request, $this->_response, $this), $params);
+                return;
             }
         }
     }
@@ -287,13 +288,21 @@ class WebController {
     protected $_response;
 
     /**
+     * The WebApp calling the controller
+     *
+     * @var WebApp;
+     */
+    protected $_app;
+
+    /**
      * Set up the controller.
      *
      * @param  WebRequest  $request
      */
-    public function __construct(WebRequest $request, WebResponse $response) {
+    public function __construct(WebRequest $request, WebResponse $response, WebApp $app) {
         $this->_request = $request;
         $this->_response = $response;
+        $this->_app = $app;
     }
 
 }
