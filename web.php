@@ -72,6 +72,16 @@ class WebApp {
         $this->_response->terminate();
     }
 
+    /**
+     * Wrap content into a template.
+     *
+     * @param  string  $content 
+     * @return string
+     */
+    public function template($content) {
+        return $content;
+    }
+
 }
 
 /**
@@ -137,6 +147,9 @@ class WebRequest {
         if (isset($env['REQUEST_METHOD'])) {
             $this->_method = $env['REQUEST_METHOD'];
         }
+        if (isset($env['SERVER_NAME'])) {
+            $this->_domain = $env['SERVER_NAME'];
+        }
     }
 
     /**
@@ -194,6 +207,15 @@ class WebRequest {
      */
     public function getUrl() {
         return $this->_url;
+    }
+
+    /**
+     * Returns the domain of the request.
+     *
+     * @return string
+     */
+    public function getDomain() {
+        return $this->_domain;
     }
 
     /**
