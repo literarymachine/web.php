@@ -179,7 +179,11 @@ class WebRequest {
      * @return array
      */
     public function getHttpAcceptLang() {
-        return $this->_http_accept_lang;
+        if (!empty($this->_http_accept_lang)) {
+            return $this->_http_accept_lang;
+        } else {
+            return array('en' => 1);
+        }
     }
 
     /**
