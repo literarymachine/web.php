@@ -57,6 +57,9 @@ class WebApp {
             $match = preg_match("/^$pattern$/", $url, $params);
             if (1 === $match) {
                 array_shift($params);
+                foreach ($params as $param) {
+                  $p[] = urlencode(urldecode($param));
+                }
                 $controller_class = new ReflectionClass($controller_classname);
                 if (false === $controller_class->hasMethod($method)) {
                     $this->_response->writeHead(501, array("Content-Type" => "text/html"));
@@ -64,7 +67,7 @@ class WebApp {
                 }
                 $action = $controller_class->getMethod($method);
                 $action->invokeArgs(
-                        $controller_class->newInstance($this->_request, $this->_response, $this), $params);
+                        $controller_class->newInstance($this->_request, $this->_response, $this), $p);
                 return;
             }
         }
