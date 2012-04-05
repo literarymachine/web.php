@@ -57,6 +57,7 @@ class WebApp {
             $match = preg_match("/^$pattern$/", $url, $params);
             if (1 === $match) {
                 array_shift($params);
+                $p = array();
                 foreach ($params as $param) {
                   $p[] = urlencode(urldecode($param));
                 }
